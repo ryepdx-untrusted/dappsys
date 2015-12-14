@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="en"><head><title>auth/auth</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="auth/auth"><meta name="groc-project-path" content="src/sol/auth/auth.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/auth/auth.sol">src/sol/auth/auth.sol</a></div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><p><code>DSAuth</code> is a mixin contract which enables standard authorization patterns.
+Its full name could be <code>DSAuthorized</code> (TODO add alias?), indicated it is the
+contract that is controlled, and to make clear it is not the <code>DSAuthority</code>.</p></div></div><div class="code"><div class="wrapper">contract DSAuth {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Currently, two authority modes are defined:</p>
+<ul>
+<li>&quot;owned&quot;, where <code>auth()</code> simply checks the sender is <code>_ds_authority</code></li>
+<li>&quot;remote auth&quot;, where <code>auth()</code> first makes a call to
+<code>DSAuthority(_ds_authority).can_call(sender, this, sig)</code></li>
+</ul></div></div><div class="code"><div class="wrapper">    uint8 _ds_mode;
+    address _ds_authority;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">DSAuth</span>(<span class="hljs-params"></span>) </span>{
+        _ds_authority = msg.sender;
+        _ds_mode = <span class="hljs-number">0</span>; <span class="hljs-comment">//DSAuthModes.Owned;</span>
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Attach the <code>auth()</code> modifier this to functions to protect them.</p></div></div><div class="code"><div class="wrapper">    modifier auth() {
+        <span class="hljs-keyword">if</span>( _ds_authenticated() ) {
+            _
+        }
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>An internal helper function for if you want to use the <code>auth()</code> logic
+someplace other than the modifier</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_ds_authenticated</span>(<span class="hljs-params"></span>) <span class="hljs-title">internal</span> <span class="hljs-title">returns</span> (<span class="hljs-params">bool is_authenticated</span>) </span>{
+        <span class="hljs-keyword">if</span>( _ds_mode == <span class="hljs-number">0</span> &amp;&amp; msg.sender == _ds_authority ) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ( _ds_mode == <span class="hljs-number">1</span> ) {
+            <span class="hljs-keyword">if</span>( msg.sender == _ds_authority ) {
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+            }
+            <span class="hljs-keyword">var</span> A = DSAuthority(_ds_authority);
+            <span class="hljs-keyword">return</span> A.can_call( msg.sender, address(<span class="hljs-keyword">this</span>), msg.sig );
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        }
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_ds_get_authority</span>(<span class="hljs-params"></span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">address authority, bool ok</span>) </span>{
+        <span class="hljs-keyword">return</span> (_ds_authority, <span class="hljs-literal">true</span>);
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>This function is used to both transfer the authority and update the mode.
+Be extra careful about setting <em>both</em> correctly every time.</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_ds_update_authority</span>(<span class="hljs-params"> address new_authority, uint8 mode </span>)
+             <span class="hljs-title">auth</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool success</span>)
+    </span>{
+        _ds_authority = DSAuthority(new_authority);
+        _ds_mode = mode;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Use the auth() pattern, but compile the address into code instead
+of into storage. This is useful if you need to use the entire address
+space, for example.</p></div></div><div class="code"><div class="wrapper">contract DSStaticAuth {
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_ds_authenticated</span>(<span class="hljs-params"> address _ds_authority </span>) <span class="hljs-title">internal</span> <span class="hljs-title">returns</span> (<span class="hljs-params">bool is_authenticated</span>) </span>{
+        <span class="hljs-keyword">if</span>( msg.sender == _ds_authority ) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        }
+        <span class="hljs-keyword">var</span> A = DSAuthority(_ds_authority);
+        <span class="hljs-keyword">return</span> A.can_call( msg.sender, address(<span class="hljs-keyword">this</span>), msg.sig );
+    }
+    modifier static_auth( address _ds_authority ) {
+        <span class="hljs-keyword">if</span>( _ds_authenticated( _ds_authority ) ) {
+            _
+        }
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Optionally implement missing DSAuth functions with your constant address
+to be fully compatible - no way to do this in general
+<code>function _ds_get_authority() constant returns (address authority);</code>
+<code>function _ds_update_authority( address new_authority ) returns (bool success);</code></p></div></div><div class="code"><div class="wrapper">}</div></div></div></div></body></html>

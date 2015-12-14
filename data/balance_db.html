@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="en"><head><title>data/balance_db</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="data/balance_db"><meta name="groc-project-path" content="src/sol/data/balance_db.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/data/balance_db.sol">src/sol/data/balance_db.sol</a></div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><p>Balance database contract for Tokens.
+Note that <code>add_balance</code> checks for overflow, but <code>move_balance</code> does not.
+That means this interface makes the assumption that all balances were added
+using <code>add_balance</code> - there are implicit semantics.
+TODO why not both one way or the other?</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> <span class="hljs-string">'auth/auth.sol'</span>;
+
+contract DSBalanceDB is DSAuth {
+    uint _supply;
+    mapping( address =&gt; uint )  _balances;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_supply</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">constant</span>
+             <span class="hljs-title">returns</span> (<span class="hljs-params">uint, bool</span>)
+    </span>{
+        <span class="hljs-keyword">return</span> (_supply, <span class="hljs-literal">true</span>);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_balance</span>(<span class="hljs-params"> address who </span>)
+             <span class="hljs-title">constant</span>
+             <span class="hljs-title">returns</span> (<span class="hljs-params">uint, bool</span>)
+    </span>{
+        <span class="hljs-keyword">return</span> (_balances[who], <span class="hljs-literal">true</span>);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">add_balance</span>(<span class="hljs-params"> address to, uint amount </span>)
+             <span class="hljs-title">auth</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool success</span>)
+    </span>{
+        <span class="hljs-keyword">if</span>( _supply + amount &lt; _supply ) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        }
+        _balances[to] += amount;
+        _supply += amount;
+        changed_balance( to, amount, <span class="hljs-literal">true</span> );
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sub_balance</span>(<span class="hljs-params"> address from, uint amount </span>)
+             <span class="hljs-title">auth</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool success</span>)
+    </span>{
+        <span class="hljs-keyword">if</span>( _balances[from] &lt; amount ) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        }
+        _balances[from] -= amount;
+        _supply -= amount;
+        changed_balance( from, amount, <span class="hljs-literal">false</span> );
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">move_balance</span>(<span class="hljs-params"> address from, address to, uint amount </span>)
+             <span class="hljs-title">auth</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool success</span>)
+    </span>{
+        <span class="hljs-keyword">if</span>( _balances[from] &lt; amount ) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        }
+        _balances[from] -= amount;
+        _balances[to] += amount;
+        changed_balance( from, amount, <span class="hljs-literal">false</span> );
+        changed_balance( to, amount, <span class="hljs-literal">true</span> );
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+    event changed_balance( address who, uint amount, bool positive);
+}</div></div></div></div></body></html>

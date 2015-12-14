@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="en"><head><title>auth/basic_authority</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="auth/basic_authority"><meta name="groc-project-path" content="src/sol/auth/basic_authority.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/auth/basic_authority.sol">src/sol/auth/basic_authority.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> <span class="hljs-string">'auth/authority.sol'</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">'auth/auth.sol'</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>A <code>DSAuthority</code> which contains a whitelist map from can_call arguments to return value.
+WARNING: The signature <code>0x0</code> is reserved to mean the caller is whitelisted for ALL signatures
+on the callee.
+Note it is itself a <code>DSAuth</code> - ie it is not self-authorized by default.</p></div></div><div class="code"><div class="wrapper">contract DSBasicAuthority is DSAuthority
+                           , DSAuth
+{
+    mapping(address=&gt;mapping(address=&gt;mapping(bytes4=&gt;bool))) _can_call;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>See <code>DSAuthority.sol</code></p></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">can_call</span>(<span class="hljs-params"> address caller
+                     , address callee
+                     , bytes4 sig </span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>)
+    </span>{
+        <span class="hljs-keyword">return</span> _can_call[caller][callee][<span class="hljs-number">0x0000</span>] == <span class="hljs-literal">true</span>
+            || _can_call[caller][callee][sig];
+    }
+    event Updated( address caller, address callee, bytes4 sig, bool can );
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">set_can_call</span>(<span class="hljs-params"> address caller
+                         , address callee
+                         , bytes4 sig
+                         , bool can </span>)
+             <span class="hljs-title">auth</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool success</span>)
+    </span>{
+        _can_call[caller][callee][sig] = can;
+        Updated( caller, callee, sig, can );
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Be sure you set the correct mode.</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">export_authorized</span>(<span class="hljs-params"> DSAuth who, address new_authority, uint8 mode </span>)
+             <span class="hljs-title">auth</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>)
+    </span>{
+        <span class="hljs-keyword">return</span> who._ds_update_authority( address(new_authority), mode );
+    }
+}</div></div></div></div></body></html>

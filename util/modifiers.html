@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="en"><head><title>util/modifiers</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="util/modifiers"><meta name="groc-project-path" content="src/sol/util/modifiers.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/util/modifiers.sol">src/sol/util/modifiers.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">contract DSModifiers {
+    modifier only_if( bool what ) {
+        <span class="hljs-keyword">if</span>( what ) {
+            _
+        }
+    }
+    modifier keys_only() {
+        <span class="hljs-keyword">if</span> ( msg.sender == tx.origin ) {
+            _
+        }
+    }
+    modifier contracts_only() {
+        <span class="hljs-keyword">if</span>( msg.sender != tx.origin ) {
+            _
+        } 
+    }
+    modifier static_auth( address auth ) {
+        <span class="hljs-keyword">if</span>( msg.sender == auth ) {
+            _
+        }
+    }
+ 
+}</div></div></div></div></body></html>

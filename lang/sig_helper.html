@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="en"><head><title>lang/sig_helper</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="lang/sig_helper"><meta name="groc-project-path" content="src/sol/lang/sig_helper.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/lang/sig_helper.sol">src/sol/lang/sig_helper.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">contract DSSigHelperMixin {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>TODO do this more idiomatically</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">dyn_sig</span>(<span class="hljs-params"></span>) <span class="hljs-title">internal</span> <span class="hljs-title">returns</span> (<span class="hljs-params">bytes4</span>) </span>{
+        uint sig = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">var</span> zero = uint(msg.data[<span class="hljs-number">0</span>]);
+        sig += zero * <span class="hljs-number">256</span>**<span class="hljs-number">3</span>;
+        <span class="hljs-keyword">var</span> one = uint(msg.data[<span class="hljs-number">1</span>]);
+        sig += one * <span class="hljs-number">256</span>**<span class="hljs-number">2</span>;
+        <span class="hljs-keyword">var</span> two = uint(msg.data[<span class="hljs-number">2</span>]);
+        sig += two * <span class="hljs-number">256</span>**<span class="hljs-number">1</span>;
+        <span class="hljs-keyword">var</span> three = uint(msg.data[<span class="hljs-number">3</span>]);
+        sig += three * <span class="hljs-number">256</span>**<span class="hljs-number">0</span>;
+        <span class="hljs-keyword">return</span> bytes4(sig);
+    }
+    modifier printsig() {
+        sig(msg.sig);
+        _
+    }
+    event sig(bytes4 sig);
+}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Add a function, add the S() modifier, and run the tests to see
+any function&#39;s signature.
+Also used to test get_my_sig implementation, needed to get the
+sig when you are in a fallback function.</p></div></div><div class="code"><div class="wrapper">contract SigHelper is DSSigHelperMixin {
+    bytes4 public last_sig;
+    bytes4 public internal_helper_sig;
+    modifier S() {
+        last_sig = msg.sig;
+        _
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">internal_tester</span>(<span class="hljs-params"></span>) <span class="hljs-title">internal</span> <span class="hljs-title">returns</span> (<span class="hljs-params">bytes4 sig</span>) </span>{
+        <span class="hljs-keyword">return</span> msg.sig;
+    }
+    <span class="hljs-comment">//0x73b4fbd7</span>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">assets</span>(<span class="hljs-params">bytes8 symbol</span>) <span class="hljs-title">S</span>(<span class="hljs-params"></span>) <span class="hljs-title">returns</span> (<span class="hljs-params">address</span>) </span>{
+        internal_helper_sig = internal_tester();
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">poke</span>(<span class="hljs-params"></span>) <span class="hljs-title">S</span>(<span class="hljs-params"></span>) </span>{}
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">breach</span>(<span class="hljs-params"></span>) <span class="hljs-title">S</span>(<span class="hljs-params"></span>) </span>{}
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">look</span>(<span class="hljs-params"></span>) <span class="hljs-title">S</span>(<span class="hljs-params"></span>) <span class="hljs-title">returns</span> (<span class="hljs-params">uint</span>) </span>{}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>testing a few other things</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_my_sig</span>(<span class="hljs-params"></span>) <span class="hljs-title">S</span>(<span class="hljs-params"></span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bytes4</span>) </span>{
+        <span class="hljs-keyword">return</span> dyn_sig();
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        last_sig = msg.sig; <span class="hljs-comment">// 0x0</span>
+    }
+}</div></div></div></div></body></html>

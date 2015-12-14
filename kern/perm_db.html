@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="en"><head><title>kern/perm_db</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="kern/perm_db"><meta name="groc-project-path" content="src/sol/kern/perm_db.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/kern/perm_db.sol">src/sol/kern/perm_db.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">contract DSFastPermDB is DSAuthority {
+    mapping( address =&gt; mapping( bytes4 =&gt; bytes8 ) )    _kern_perm_required;
+    mapping( address =&gt; bytes8 )                         _kern_perm_grants;
+    mapping( address =&gt; bytes8 )        public                 _kern_perm_has;
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">set_perms</span>(<span class="hljs-params"> address who, bytes8 new_perms </span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>) </span>{
+        <span class="hljs-keyword">var</span> diff = new_perms ^ _kern_perm_has[who];
+        <span class="hljs-keyword">if</span>( subset8(diff, _kern_perm_grants[ msg.sender ]) ) {
+            _kern_perm_has[who] = new_perms;
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">set_grants</span>(<span class="hljs-params"> address who, bytes8 new_grants </span>) <span class="hljs-title">kern_auth</span>(<span class="hljs-params">0x1</span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>) </span>{
+        _kern_perm_grants[who] = new_grants;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">set_required_perms</span>(<span class="hljs-params"> address who
+                               , bytes4 sig
+                               , bytes8 perms </span>) <span class="hljs-title">kern_auth</span>(<span class="hljs-params">0x1</span>)
+    </span>{
+        _kern_perm_required[who][sig] = perms;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_perms</span>(<span class="hljs-params"> address who </span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bytes8</span>) </span>{
+        <span class="hljs-keyword">return</span> _kern_perm_has[who];
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_required_perms</span>(<span class="hljs-params"> address who, bytes4 entrypoint </span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bytes8</span>) </span>{
+        <span class="hljs-keyword">return</span> _kern_perm_required[who][entrypoint];
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>**  Auth</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">can_call</span>(<span class="hljs-params"> address caller
+                     , address callee
+                     , bytes4 sig </span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>)
+    </span>{
+        <span class="hljs-keyword">var</span> has = _kern_perm_has[caller];
+        <span class="hljs-keyword">var</span> required = _kern_perm_required[callee][sig];
+        <span class="hljs-keyword">if</span>( subset8(has, required) ) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        }
+        <span class="hljs-keyword">var</span> alt_required = _kern_perm_required[callee][<span class="hljs-number">0x0</span>];
+        <span class="hljs-keyword">return</span> subset8(has, alt_required);
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>internal use, not to be confused with *auth() flavors provided
+by various mixins</p></div></div><div class="code"><div class="wrapper">    modifier kern_auth(bytes8 required) {
+        <span class="hljs-keyword">if</span>( subset8( required, _kern_perm_has[address(<span class="hljs-keyword">this</span>)] ) ) {
+            _
+        }
+    }
+}</div></div></div></div></body></html>

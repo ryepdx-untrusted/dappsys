@@ -1,0 +1,10 @@
+<!DOCTYPE html><html lang="en"><head><title>kern/klog</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="kern/klog"><meta name="groc-project-path" content="src/sol/kern/klog.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/kern/klog.sol">src/sol/kern/klog.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">contract Logger {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>** Centralized Logging</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">log</span>(<span class="hljs-params"> bytes32 key, bytes value</span>) <span class="hljs-title">external</span> </span>{
+        kernel_event(key, value);
+    }
+    event kernel_event( bytes32 indexed key, bytes value );
+    event kernel_event2( bytes32 indexed key
+                       , bytes32 indexed key2
+                       , bytes value );
+    event kernel_event3( bytes32 indexed key3, bytes value );
+
+}</div></div></div></div></body></html>

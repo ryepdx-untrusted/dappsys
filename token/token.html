@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="en"><head><title>token/token</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="token/token"><meta name="groc-project-path" content="src/sol/token/token.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/token/token.sol">src/sol/token/token.sol</a></div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><p>An implementation of ERC20 with updateable databases contracts.</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> <span class="hljs-string">'token/erc20.sol'</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">'data/balance_db.sol'</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">'data/approval_db.sol'</span>;
+
+contract DSToken1 is ERC20
+                   , DSAuth
+{
+    DSBalanceDB public bal;
+    DSApprovalDB public appr;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">DSToken1</span>(<span class="hljs-params"> DSBalanceDB baldb, DSApprovalDB apprdb </span>) </span>{
+        bal = baldb;
+        appr = apprdb;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">totalSupply</span>(<span class="hljs-params"></span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">uint supply</span>) </span>{
+        (supply,) = bal.get_supply();
+        <span class="hljs-keyword">return</span> supply;
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><pre><code>function totalSupply() constant returns (uint supply, bool ok) {
+    return bal.get_supply();
+}</code></pre></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">balanceOf</span>(<span class="hljs-params"> address who </span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">uint amount</span>) </span>{
+        (amount,) = bal.get_balance( who );
+        <span class="hljs-keyword">return</span> amount;
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><pre><code>function balanceOf( address who ) constant returns (uint amount, bool ok) {
+    (amount, ok) = bal.get_balance(who);
+}</code></pre></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transfer</span>(<span class="hljs-params"> address to, uint value</span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bool ok</span>) </span>{
+        ok = bal.move_balance( msg.sender, to, value );
+        <span class="hljs-keyword">if</span>( ok ) {
+            Transfer( msg.sender, to, value );
+        }
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transferFrom</span>(<span class="hljs-params"> address from, address to, uint value</span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bool ok</span>) </span>{
+        <span class="hljs-keyword">var</span> (allowance, _ok) = appr.get( from, msg.sender );
+        <span class="hljs-keyword">if</span>( ok ) {
+            ok = bal.move_balance( from, to, value);
+            <span class="hljs-keyword">if</span>( ok ) {
+                Transfer( from, to, value );
+            }
+        }
+        
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">approve</span>(<span class="hljs-params">address spender, uint value</span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bool ok</span>) </span>{
+        uint allowance;
+        (allowance, ok) = appr.add( msg.sender, spender, value );
+        <span class="hljs-keyword">if</span>( ok ) {
+            Approval( msg.sender, spender, allowance);
+        }
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">unapprove</span>(<span class="hljs-params">address spender</span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bool ok</span>) </span>{
+        ok = appr.set( msg.sender, spender, <span class="hljs-number">0</span> );
+        <span class="hljs-keyword">if</span>( ok ) {
+            Approval( msg.sender, spender, <span class="hljs-number">0</span>);
+        }
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">allowance</span>(<span class="hljs-params">address owner, address spender</span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">uint _allowance</span>) </span>{
+        (_allowance,) = appr.get(owner, spender);
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><pre><code>function allowance(address owner, address spender) constant returns (uint _allowance, bool ok) {
+    (_allowance, ok) = appr.get(owner, spender);
+}</code></pre></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">update_dbs</span>(<span class="hljs-params"> DSBalanceDB new_bal_db, address new_bal_auth, uint8 new_bal_auth_mode
+                       , DSApprovalDB new_appr_db, address new_appr_auth, uint8 new_appr_auth_mode </span>)
+             <span class="hljs-title">auth</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>)
+    </span>{
+        <span class="hljs-keyword">var</span> ok = bal._ds_update_authority( new_bal_auth, new_bal_auth_mode );
+        <span class="hljs-keyword">if</span>( ok ) {
+            bal = new_bal_db;
+        }
+        ok = appr._ds_update_authority( new_appr_auth, new_appr_auth_mode );
+        <span class="hljs-keyword">if</span>( ok ) {
+            appr = new_appr_db;
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+}</div></div></div></div></body></html>

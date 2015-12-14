@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="en"><head><title>token/old_asset/asset0</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="token/old_asset/asset0"><meta name="groc-project-path" content="src/sol/token/old_asset/asset0.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/token/old_asset/asset0.sol">src/sol/token/old_asset/asset0.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> <span class="hljs-string">'data/balance_db.sol'</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">'asset/interface.sol'</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Contract type for first set of assets</p></div></div><div class="code"><div class="wrapper">contract DSAsset0Impl is DSAsset0
+                       , DSAuth
+{
+    DSBalanceDB public db;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">DSAsset0Impl</span>(<span class="hljs-params"> address balance_db </span>) </span>{
+        db = DSBalanceDB(balance_db);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_supply</span>(<span class="hljs-params"></span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">uint, bool</span>) </span>{
+        <span class="hljs-keyword">return</span> db.get_supply();
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_balance</span>(<span class="hljs-params"> address who </span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">uint balance, bool ok</span>) </span>{
+        <span class="hljs-keyword">return</span> db.get_balance( who );
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transfer</span>(<span class="hljs-params"> address to, uint amount </span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bool success</span>) </span>{
+        <span class="hljs-keyword">return</span> transfer_and_notify( to, amount, <span class="hljs-number">0x0</span> );
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transfer_and_notify</span>(<span class="hljs-params"> address to
+                                , uint amount
+                                , bytes32 data </span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool success</span>)
+    </span>{
+        success = db.move_balance( msg.sender, to, amount );
+        <span class="hljs-keyword">if</span>( success ) {
+            event_transfer_and_notify( msg.sender, to, data, amount );
+        }
+        <span class="hljs-keyword">return</span> success;
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">swap_db</span>(<span class="hljs-params"> DSBalanceDB new_db, DSAuthority old_db_new_owner, uint8 mode </span>)
+             <span class="hljs-title">auth</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool success</span>)
+    </span>{
+	    <span class="hljs-keyword">var</span> ok = db._ds_update_authority( old_db_new_owner, mode );
+        <span class="hljs-keyword">if</span>( ok ) {
+            db = new_db;
+	        event_swap_db( address(db), address(old_db_new_owner) );
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+}</div></div></div></div></body></html>

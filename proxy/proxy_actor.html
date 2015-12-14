@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><title>proxy/proxy_actor</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="proxy/proxy_actor"><meta name="groc-project-path" content="src/sol/proxy/proxy_actor.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/proxy/proxy_actor.sol">src/sol/proxy/proxy_actor.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-comment">///  TODO for now you can only do the manual/cumbersome "_ds_proxy_act"</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>  for the rest to work there needs to be a serpent contract which:
+      1) discards first 4 bytes of calldata
+      2) interprets next ?? bytes as target address
+      4) interprets next 
+      3) returns byte[BUFSIZE]</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> <span class="hljs-string">'lang/sig_helper.sol'</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">'core/debug.sol'</span>;
+
+contract UintProvider{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">magic</span>(<span class="hljs-params"></span>) <span class="hljs-title">returns</span> (<span class="hljs-params">uint</span>);
+}
+
+<span class="hljs-title">contract</span> <span class="hljs-title">DSProxyActor</span> <span class="hljs-title">is</span> <span class="hljs-title">DSAuth</span>
+                       , <span class="hljs-title">DSSigHelperMixin</span>
+</span>{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>The point of this contract is to avoid needing to use this
+function:</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_ds_proxy_act</span>(<span class="hljs-params"> address target, bytes4 sig, bytes calldata </span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool solidity_ok</span>) 
+    </span>{
+        <span class="hljs-keyword">return</span> target.call( sig, calldata);
+    }
+
+    address _ds_call_target;
+    byte[<span class="hljs-number">4096</span>] result;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_ds_set_call_target</span>(<span class="hljs-params"> address target </span>)
+             <span class="hljs-title">auth</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>)
+    </span>{
+        _ds_call_target = target;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> sig = dyn_sig();
+        <span class="hljs-comment">//logs("proxy actor fallback");</span>
+        <span class="hljs-comment">//log_named_bytes4("sig:", sig);</span>
+        <span class="hljs-keyword">var</span> ok = _ds_call_target.call( msg.data );
+        <span class="hljs-comment">//log_named_uint( "real magic", UintProvider(_ds_call_target).magic());</span>
+        <span class="hljs-comment">//log_bool(ok);</span>
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>TODO you can&#39;t actually do this.
+function() returns (byte[4096]) {
+    if( authed() ) {
+        var returner = ByteReturnerInterface(_ds_call_target);
+        _ds_call_target.call(msg.data);
+    }
+}</p></div></div><div class="code"><div class="wrapper">}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Force solidity to do things it doesn&#39;t want</p></div></div><div class="code"><div class="wrapper">contract ByteReturnerInterface {
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getReturnValue</span>(<span class="hljs-params">address target, bytes calldata</span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">byte[4096]</span>);
+}
+
+
+</span></div></div></div></div></body></html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html><html lang="en"><head><title>auth/auth_test</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="auth/auth_test"><meta name="groc-project-path" content="src/sol/auth/auth_test.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/auth/auth_test.sol">src/sol/auth/auth_test.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> <span class="hljs-string">'dapple/test.sol'</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">'auth/authority.sol'</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">'auth/auth.sol'</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">'auth/reject.sol'</span>;
+
+contract AcceptingAuthority {
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">can_call</span>(<span class="hljs-params"> address caller
+                     , address callee
+                     , bytes4 sig </span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>)
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+}
+
+contract Vault is DSAuth { <span class="hljs-comment">//, DSSigHelperMixin {</span>
+    bool public breached;
+    uint public coins;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Vault</span>(<span class="hljs-params"></span>) </span>{
+        reset();
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">reset</span>(<span class="hljs-params"></span>) </span>{
+        coins = <span class="hljs-number">50</span>;
+        breached = <span class="hljs-literal">false</span>;
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>0x0b6142fc</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">breach</span>(<span class="hljs-params"></span>) <span class="hljs-title">auth</span>(<span class="hljs-params"></span>) </span>{
+        breached = <span class="hljs-literal">true</span>;
+        coins = <span class="hljs-number">4</span>;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">look</span>(<span class="hljs-params"></span>) <span class="hljs-title">auth</span>(<span class="hljs-params"></span>) <span class="hljs-title">returns</span> (<span class="hljs-params">uint</span>) </span>{
+        <span class="hljs-keyword">return</span> coins;
+    }
+}
+
+contract AuthTest is Test {
+    Vault v;
+    <span class="hljs-comment">//SigHelper s;</span>
+    AcceptingAuthority AA;
+    RejectingAuthority RA;
+    bytes4 breach_sig;
+    bytes4 look_sig;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setUp</span>(<span class="hljs-params"></span>) </span>{
+        v = <span class="hljs-keyword">new</span> Vault();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>  s = new SigHelper();</p></div></div><div class="code"><div class="wrapper">        RA = <span class="hljs-keyword">new</span> RejectingAuthority();
+        AA = <span class="hljs-keyword">new</span> AcceptingAuthority();
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testOwnerCanBreach</span>(<span class="hljs-params"></span>) </span>{
+        v.breach();
+        assertTrue(v.breached(), <span class="hljs-string">"owner failed to call"</span>);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testNonOwnerCantBreach</span>(<span class="hljs-params"></span>) </span>{
+        v._ds_update_authority( DSAuthority(<span class="hljs-number">0x0</span>), <span class="hljs-number">0</span> );
+        v.breach();
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testTransferToAcceptAuthority</span>(<span class="hljs-params"></span>) </span>{
+        v._ds_update_authority( AA, <span class="hljs-number">1</span> );
+        v.breach();
+        assertTrue( v.breached(), <span class="hljs-string">"authority failed to accept"</span>);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testTransferToRejectAuthority</span>(<span class="hljs-params"></span>) </span>{
+        v._ds_update_authority( RA, <span class="hljs-number">1</span> );
+        v.breach();
+        <span class="hljs-keyword">this</span>.assertFalse( v.breached(), <span class="hljs-string">"authority failed to reject"</span>);
+    }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>This test was used to confirm we need an explicit auth mode argument</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testTransferToNullAuthority</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> ok = v._ds_update_authority( DSAuthority(address(bytes32(<span class="hljs-number">0x3</span>))), <span class="hljs-number">0</span> );
+	assertTrue(ok, <span class="hljs-string">"couldn't update authority!"</span>);
+        v.breach();
+        <span class="hljs-keyword">this</span>.assertFalse( v.breached(), <span class="hljs-string">"authority failed to reject"</span>);
+    }
+}</div></div></div></div></body></html>

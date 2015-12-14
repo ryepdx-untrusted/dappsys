@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="en"><head><title>proxy/multisig_proxy</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="proxy/multisig_proxy"><meta name="groc-project-path" content="src/sol/proxy/multisig_proxy.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/proxy/multisig_proxy.sol">src/sol/proxy/multisig_proxy.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">contract DSMultisigProxy is DSBaseProxy {
+    struct multisig_config {
+        uint required_signatures;
+        uint num_members;
+    }
+    struct action {
+        address target;
+        uint value;
+        bytes calldata;
+
+        uint approvals;
+        uint required;
+
+        bool succeeded;
+        bool complete;
+    }
+
+    mapping( uint =&gt; action )     public    actions;
+    mapping( address =&gt; bool)     public    is_member;
+    multisig_config               public    config;
+    uint                          public    next_action;
+
+    mapping( address =&gt; mapping( uint =&gt; bool ) ) approvals;
+    
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">execute</span>(<span class="hljs-params"> address target, uint value, bytes calldata </span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bytes32 call_id, bool ok</span>)
+    </span>{
+        action a;
+        a.target = target;
+        a.value = value;
+        a.calldata = calldata;
+        a.approvals = <span class="hljs-number">0</span>;
+        a.acted = <span class="hljs-literal">false</span>;
+
+        actions[next_action] = a;
+        next_action++;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">confirm</span>(<span class="hljs-params"> bytes32 call_id </span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool executed, bool call_ret, bool ok</span>)
+    </span>{
+        <span class="hljs-keyword">if</span>( is_member[msg.sender] &amp;&amp; !approvals[msg.sender][action_id] ) {
+            actions[action_id].approvals++;
+        }
+    }
+}</div></div></div></div></body></html>

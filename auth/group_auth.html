@@ -1,0 +1,10 @@
+<!DOCTYPE html><html lang="en"><head><title>auth/group_auth</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="auth/group_auth"><meta name="groc-project-path" content="src/sol/auth/group_auth.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/auth/group_auth.sol">src/sol/auth/group_auth.sol</a></div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><p>Group-based call permissions.</p></div></div><div class="code"><div class="wrapper">contract GroupAuthority is DSAuthority {
+	mapping( address =&gt; bytes32 ) _perms_has;
+	mapping( address =&gt; mapping( bytes4 =&gt; bytes32 ) ) _perms_req;
+
+	<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">can_call</span>(<span class="hljs-params"> address caller, address callee, bytes4 sig </span>) <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>) </span>{
+		<span class="hljs-keyword">var</span> has = _perms_has[caller];
+		<span class="hljs-keyword">var</span> req = _perms_req[callee][sig];
+		<span class="hljs-keyword">return</span> ((has &amp; req) != bytes32(<span class="hljs-number">0</span>));
+	}
+}</div></div></div></div></body></html>

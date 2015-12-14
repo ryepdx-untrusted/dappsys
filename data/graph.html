@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="en"><head><title>data/graph</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="data/graph"><meta name="groc-project-path" content="src/sol/data/graph.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/data/graph.sol">src/sol/data/graph.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">contract DSAddressGraphDB is DSAuth {
+    mapping(address=&gt;mapping(address=&gt;mapping(bytes32=&gt;bytes32))) _graph;
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">set</span>(<span class="hljs-params"> address from, address to, bytes32 key, bytes32 value </span>)
+             <span class="hljs-title">auth</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bool ok</span>)
+    </span>{
+        _graph[from][to][key] = value;
+        event_set( from, to, key, value );
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+    event event_set( address indexed from
+                   , address indexed to
+                   , bytes32 indexed key
+                   , bytes32 value );
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get</span>(<span class="hljs-params"> address from, address to, bytes32 key </span>)
+             <span class="hljs-title">constant</span>
+             <span class="hljs-title">returns</span> (<span class="hljs-params">bytes32 value, bool ok</span>)
+    </span>{
+        <span class="hljs-keyword">return</span> (_graph[from][to][key], <span class="hljs-literal">true</span>);
+    }
+}</div></div></div></div></body></html>

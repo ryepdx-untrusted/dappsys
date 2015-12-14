@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="en"><head><title>math/math_test</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="math/math_test"><meta name="groc-project-path" content="src/sol/math/math_test.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/math/math_test.sol">src/sol/math/math_test.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> <span class="hljs-string">'math/math.sol'</span>;
+
+contract DSFixedPointMathUserTest is Test
+                                   , DSFixedPointMathMixin(<span class="hljs-number">10</span>**<span class="hljs-number">18</span>)
+{
+    uint half; uint one; uint two; uint three; uint four; uint six;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setUp</span>(<span class="hljs-params"></span>) </span>{
+        one = _fxp_unit(<span class="hljs-number">1</span>); two = _fxp_unit(<span class="hljs-number">2</span>); three = _fxp_unit(<span class="hljs-number">3</span>);
+        four = _fxp_unit(<span class="hljs-number">4</span>); six = _fxp_unit(<span class="hljs-number">6</span>);
+        half = _precision / <span class="hljs-number">2</span>;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testUnitConstructor</span>(<span class="hljs-params"></span>) </span>{
+        assertEq(<span class="hljs-number">2</span> * (<span class="hljs-number">10</span>**<span class="hljs-number">18</span>), two, <span class="hljs-string">"wrong precision"</span>);
+        assertEq(<span class="hljs-number">50000</span> * (<span class="hljs-number">10</span>**<span class="hljs-number">18</span>), _fxp_unit(<span class="hljs-number">50000</span>), <span class="hljs-string">"wrong precision"</span>);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testMul</span>(<span class="hljs-params"></span>) </span>{
+        assertEq(_fxp_mul(two, three), six, <span class="hljs-string">"_fxp_mul gave wrong answer"</span>);
+        assertEq(_fxp_mul(half, six), three, <span class="hljs-string">"_fxp_mul gave wrong answer"</span>);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testDiv</span>(<span class="hljs-params"></span>) </span>{
+        assertEq(_fxp_div(six, two), three, <span class="hljs-string">"_fxp_div gave wrong answer"</span>);
+        assertEq(_fxp_div(two, half), four, <span class="hljs-string">"_fxp_div gave wrong answer"</span>);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testPow</span>(<span class="hljs-params"></span>) </span>{
+        assertEq(_fxp_pow(two, two), four, <span class="hljs-string">"_fxp_pow gave wrong answer"</span>);
+        assertEq(_fxp_pow(three, two), _fxp_unit(<span class="hljs-number">9</span>), <span class="hljs-string">"_fxp_pow gave wrong answer"</span>);
+    }
+}</div></div></div></div></body></html>

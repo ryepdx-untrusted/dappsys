@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="en"><head><title>math/math</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="math/math"><meta name="groc-project-path" content="src/sol/math/math.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/math/math.sol">src/sol/math/math.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">contract DSFixedPointMathMixin {
+    uint _precision;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">DSFixedPointMathMixin</span>(<span class="hljs-params"> uint precision </span>) </span>{
+        _precision = precision;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_fxp_unit</span>(<span class="hljs-params"> uint a </span>) <span class="hljs-title">internal</span> <span class="hljs-title">returns</span> (<span class="hljs-params">uint c</span>) </span>{
+        <span class="hljs-keyword">return</span> a * _precision;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_fxp_mul</span>(<span class="hljs-params">uint a, uint b</span>) <span class="hljs-title">internal</span> <span class="hljs-title">returns</span> (<span class="hljs-params">uint c</span>) </span>{
+        <span class="hljs-keyword">return</span> (a * b) / _precision;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_fxp_div</span>(<span class="hljs-params">uint a, uint b</span>) <span class="hljs-title">internal</span> <span class="hljs-title">returns</span> (<span class="hljs-params">uint c</span>) </span>{
+        <span class="hljs-keyword">return</span> (a / b) * _precision;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_fxp_pow</span>(<span class="hljs-params">uint a, uint b</span>) <span class="hljs-title">internal</span> <span class="hljs-title">returns</span> (<span class="hljs-params">uint c</span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-number">0x4444</span>;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_fxp_max</span>(<span class="hljs-params"> uint a, uint b </span>) <span class="hljs-title">internal</span> <span class="hljs-title">returns</span> (<span class="hljs-params"> uint c </span>) </span>{
+        <span class="hljs-keyword">if</span>( a &gt; b) {
+            <span class="hljs-keyword">return</span> a;
+        }
+        <span class="hljs-keyword">return</span> b;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_fxp_min</span>(<span class="hljs-params"> uint a, uint b </span>) <span class="hljs-title">internal</span> <span class="hljs-title">returns</span> (<span class="hljs-params"> uint c </span>) </span>{
+        <span class="hljs-keyword">if</span>( a &lt; b) {
+            <span class="hljs-keyword">return</span> a;
+        }
+        <span class="hljs-keyword">return</span> b;
+    }
+}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Don&#39;t re-deploy use the factory to get singleton instances for each precision</p></div></div><div class="code"><div class="wrapper">contract DSFixedPointMath is DSFixedPointMathMixin {
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">DSFixedPointMath</span>(<span class="hljs-params"> uint precision </span>)
+             <span class="hljs-title">DSFixedPointMathMixin</span>(<span class="hljs-params"> precision</span>)
+    </span>{}
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fxp_unit</span>(<span class="hljs-params"> uint a </span>) <span class="hljs-title">returns</span> (<span class="hljs-params">uint c</span>) </span>{
+        <span class="hljs-keyword">return</span> _fxp_unit(a);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fxp_mul</span>(<span class="hljs-params">uint a, uint b</span>) <span class="hljs-title">returns</span> (<span class="hljs-params">uint c</span>) </span>{
+        <span class="hljs-keyword">return</span> _fxp_mul(a, b);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fxp_div</span>(<span class="hljs-params">uint a, uint b</span>) <span class="hljs-title">returns</span> (<span class="hljs-params">uint c</span>) </span>{
+        <span class="hljs-keyword">return</span> _fxp_div(a, b);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fxp_pow</span>(<span class="hljs-params">uint a, uint b</span>) <span class="hljs-title">returns</span> (<span class="hljs-params">uint c</span>) </span>{
+        <span class="hljs-keyword">return</span> _fxp_pow(a, b);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fxp_max</span>(<span class="hljs-params"> uint a, uint b </span>) <span class="hljs-title">returns</span> (<span class="hljs-params"> uint c </span>) </span>{
+        <span class="hljs-keyword">return</span> _fxp_max(a, b);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fxp_min</span>(<span class="hljs-params"> uint a, uint b </span>) <span class="hljs-title">returns</span> (<span class="hljs-params"> uint c </span>) </span>{
+        <span class="hljs-keyword">return</span> _fxp_min(a, b);
+    }
+}</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>deployed at:</p></div></div><div class="code"><div class="wrapper">contract DSFixedPointMathFactory {
+    mapping( uint =&gt; DSFixedPointMath ) _fxps; <span class="hljs-comment">// TODO optimized array</span>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fxp</span>(<span class="hljs-params">uint precision</span>) <span class="hljs-title">returns</span> (<span class="hljs-params">DSFixedPointMath</span>) </span>{
+        <span class="hljs-keyword">if</span>( _fxps[precision] == DSFixedPointMath(<span class="hljs-number">0x0</span>) ) {
+            _fxps[precision] = <span class="hljs-keyword">new</span> DSFixedPointMath(precision);
+        }
+        <span class="hljs-keyword">return</span> _fxps[precision];
+    }
+}
+
+contract DSFixedPointMathFactoryUser {
+    address fxp_math_factory = <span class="hljs-number">0x0</span>;
+}
+
+contract DSFixedPointMathUser is DSFixedPointMathFactoryUser
+{
+    DSFixedPointMath fxp_math;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">DSFixedPointMathUser</span>(<span class="hljs-params"> uint precision </span>) </span>{
+        <span class="hljs-keyword">if</span>( precision == <span class="hljs-number">0</span> ) {
+            precision = <span class="hljs-number">10</span> ** <span class="hljs-number">18</span>;
+        }
+        fxp_math = DSFixedPointMathFactory(fxp_math_factory).fxp(precision);
+    }
+}</div></div></div></div></body></html>

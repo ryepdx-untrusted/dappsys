@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang="en"><head><title>data/median_test</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="data/median_test"><meta name="groc-project-path" content="src/sol/data/median_test.sol"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/src/sol/data/median_test.sol">src/sol/data/median_test.sol</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> <span class="hljs-string">'data/median.sol'</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">'dapple/test.sol'</span>;
+
+
+contract submitter {
+    MedianFinder _mf;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">submitter</span>(<span class="hljs-params"> MedianFinder mf </span>) </span>{
+        _mf = mf;
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">submit</span>(<span class="hljs-params">uint val</span>) </span>{
+        _mf.set( val );
+    }
+}
+
+
+contract MedianFinderTest is Test {
+    MedianFinder mf;
+    submitter[<span class="hljs-number">10</span>] s;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setUp</span>(<span class="hljs-params"></span>) </span>{
+        mf = <span class="hljs-keyword">new</span> MedianFinder();
+        mf.set_num_slots(<span class="hljs-number">10</span>);
+        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++ ) {
+            s[i] = <span class="hljs-keyword">new</span> submitter(mf);
+            mf.set_slot(address(s[i]), i);
+        }
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testSimpleMedian</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">logs_gas</span>(<span class="hljs-params"></span>)
+    </span>{
+        mf.set_num_slots(<span class="hljs-number">3</span>);
+        s[<span class="hljs-number">1</span>].submit(<span class="hljs-number">1</span>);
+        s[<span class="hljs-number">2</span>].submit(<span class="hljs-number">2</span>);
+        s[<span class="hljs-number">3</span>].submit(<span class="hljs-number">3</span>);
+        assertEq(<span class="hljs-number">2</span>, mf.get_median());
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testOutOfOrderMedian</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">logs_gas</span>(<span class="hljs-params"></span>)
+    </span>{
+        mf.set_num_slots(<span class="hljs-number">5</span>);
+        s[<span class="hljs-number">1</span>].submit(<span class="hljs-number">5</span>);
+        s[<span class="hljs-number">2</span>].submit(<span class="hljs-number">2</span>);
+        s[<span class="hljs-number">3</span>].submit(<span class="hljs-number">3</span>);
+        s[<span class="hljs-number">4</span>].submit(<span class="hljs-number">4</span>);
+        s[<span class="hljs-number">5</span>].submit(<span class="hljs-number">1</span>);
+        assertEq(<span class="hljs-number">3</span>, mf.get_median());
+    }
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">testMoreFeedsThanSlots</span>(<span class="hljs-params"></span>)
+             <span class="hljs-title">logs_gas</span>(<span class="hljs-params"></span>)
+    </span>{
+        mf.set_num_slots(<span class="hljs-number">3</span>);
+        s[<span class="hljs-number">1</span>].submit(<span class="hljs-number">5</span>);
+        s[<span class="hljs-number">2</span>].submit(<span class="hljs-number">2</span>);
+        s[<span class="hljs-number">3</span>].submit(<span class="hljs-number">3</span>);
+        s[<span class="hljs-number">4</span>].submit(<span class="hljs-number">4</span>);
+        s[<span class="hljs-number">5</span>].submit(<span class="hljs-number">1</span>);
+        assertEq(<span class="hljs-number">3</span>, mf.get_median()); <span class="hljs-comment">// still ==3 because out of order</span>
+    }
+}</div></div></div></div></body></html>

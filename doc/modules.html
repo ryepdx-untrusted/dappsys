@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="en"><head><title>doc/modules</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="doc/modules"><meta name="groc-project-path" content="doc/modules.md"><meta name="groc-github-url" content="https://github.com/NexusDevelopment/dappsys"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/NexusDevelopment/dappsys/blob/master/doc/modules.md">doc/modules.md</a></div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h2 id="tested-and-documented">Tested and Documented:</h2>
+<h3 id="-auth-"><code>auth</code></h3>
+<p>Base command-and-control contracts. </p>
+<p>tests/docs</p>
+<ul>
+<li><code>auth/auth.sol</code></li>
+<li><code>auth/authority.sol</code></li>
+<li><code>auth/basic_authority.sol</code></li>
+</ul>
+<p>design</p>
+<ul>
+<li><code>auth/group_authority.sol</code></li>
+</ul>
+<h3 id="-data-"><code>data</code></h3>
+<p>Database contracts.</p>
+<p>tests/docs</p>
+<ul>
+<li><code>data/approval_db.sol</code></li>
+<li><code>data/balance_db.sol</code></li>
+</ul>
+<p>design</p>
+<ul>
+<li><code>data/auth_db.sol</code></li>
+</ul>
+<h3 id="-token-"><code>token</code></h3>
+<p>impl:
+<code>token/eip20.sol</code>
+<code>token/token.sol</code></p>
+<h3 id="-kern-"><code>kern</code></h3>
+<p>This contract will be a &quot;fully dynamic object&quot;. The creator owns a contract which can be modified arbitraily, including the ability to &quot;solidify&quot; and constrain its ability to change itself. It is the union of several generalizations:</p>
+<ul>
+<li>A <em>dynamic ABI</em> (<code>dynin</code>)</li>
+<li>Ability to do <em>dynamic calls</em> (<code>dynout</code>)</li>
+<li>Ability to do <em>dynamic events</em> (<code>dynlog</code>)</li>
+<li>A managed subsystem (<code>auth</code>)</li>
+</ul>
+<p>The value of the first 3 components is that together that they let you simulate any compiled contract, modulo gas cost and stack depth.
+The <code>auth</code> component is a simple set of conventions for contract command-and-control.</p>
+<p>[1] certain restrictions in the Solidity language definition prevent us from creating this contract in pure Solidity. For now, the Kernel is split into component contracts, giving you several workaround options. Fortunately these critical features are still on the official solidity roadmap.</p>
+<h3 id="-lang-"><code>lang</code></h3>
+<p>Tests to explore solidity&#39;s corner cases, and some helper mixins.</p>
+<h3 id="-util-"><code>util</code></h3>
+<p>misc utilities</p></div></div></div></div></body></html>
